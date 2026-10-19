@@ -90,6 +90,7 @@ AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval = 3)
 5. **程序退出**：析构时会停止后台线程，把剩余buffer全部写入磁盘，避免丢日志。
 
 ## 📌 待实现功能（可选扩展）
+- [ ] 日志写满自动滚动
 - [ ] 日志文件名自定义
 - [ ] 日志文件滚动时间自定义
 - [ ] 日志时间戳精度自定义
