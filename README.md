@@ -42,18 +42,7 @@ int main()
 }
 ```
 
-
-### 2. CMake编译
-```cmake
-# CMakeLists.txt
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_subdirectory(base)
-add_executable(testLog base/test/testLog.cpp)
-target_link_libraries(testLog me_base)
-```
-
-### 3. 运行
+### 2. cmake编译运行
 ```bash
 mkdir build && cd build
 cmake ..
@@ -103,6 +92,7 @@ AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval = 3)
 ## 📌 待实现功能（可选扩展）
 - [ ] 日志文件名自定义
 - [ ] 日志文件滚动时间自定义
+- [ ] 日志时间戳精度自定义
 - [ ] 日志文件自动清理旧日志
 - [ ] `fsync` 可选强制落盘开关
 - [ ] 日志异步落地到网络（udp/tcp远程日志）
