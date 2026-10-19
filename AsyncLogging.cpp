@@ -6,8 +6,8 @@
 using namespace std;
 using namespace me;
 namespace me {
-AsyncLogging::AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval)
-    : file_(basename, 100 * 1024 * 1024, true, 30, 1024)
+AsyncLogging::AsyncLogging(off_t rollSize, int flushInterval)
+    : file_("firstlog", 100 * 1024 * 1024, true, 30, 1024)
     , flushInterval_(flushInterval) {
     currentBuffer_ = std::make_unique<Buffer>();
     nextBuffer_ = std::make_unique<Buffer>();
@@ -46,6 +46,13 @@ void AsyncLogging::stop() {
     cond_.notify_one();
     if (thread_.joinable()) {
         thread_.join();
+    }
+}
+
+void AsyncLogging::setBasename(const std::string& basename) {
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        file_.setBasename(basename);
     }
 }
 

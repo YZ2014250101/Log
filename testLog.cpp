@@ -1,3 +1,4 @@
+#include "AsyncLogging.h"
 #include "LogStream.h"
 #include <atomic>
 #include <chrono>
@@ -5,7 +6,7 @@
 #include <thread>
 using namespace me;
 // 总日志条数
-constexpr int kTotalLogs = 1000000;
+constexpr int kTotalLogs = 3000000;
 // 并发线程数
 constexpr int kThreadNum = 8;
 
@@ -22,6 +23,7 @@ void log_worker() {
 }
 
 int main() {
+    getGlobalAsyncLogging()->setBasename("我的名字");
     auto start = std::chrono::high_resolution_clock::now();
 
     std::vector<std::thread> workers;

@@ -71,6 +71,12 @@ bool LogFile::rollFile() {
     return false;
 }
 
+void LogFile::setBasename(const string& basename) {
+    {
+        std::unique_lock<std::mutex> lock(mutex_);
+        basename_ = basename;
+    }
+}
 string LogFile::getLogFileName(const string& basename, time_t* now) {
     string filename;
     filename.reserve(basename.size() + 64);

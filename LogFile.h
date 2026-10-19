@@ -1,6 +1,5 @@
 #pragma once
 #include "FileUtil.h"
-#include "Timestamp.h"
 #include <memory>
 #include <mutex>
 using namespace std;
@@ -14,13 +13,14 @@ public:
     void append(const char* logline, int len);
     void flush();
     bool rollFile();
+    void setBasename(const string& basename);
 
 private:
     void append_unlocked(const char* logline, int len);
 
     static string getLogFileName(const string& basename, time_t* now);
 
-    const string basename_;
+    string basename_;
     const off_t rollSize_;
     const int flushInterval_;
     const int checkEveryN_;

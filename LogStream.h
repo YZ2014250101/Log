@@ -1,8 +1,10 @@
 #pragma once
 #include "AsyncLogging.h"
 #include "LogLevel.h"
+#include "Timestamp.h"
 #include "noncopyable.h"
 #include <string.h>
+
 using namespace std;
 namespace me {
 

@@ -82,14 +82,20 @@ AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval = 3)
 - `rollSize`：文件滚动阈值，超过该大小生成新日志文件
 - `flushInterval`：超时刷新时间（单位秒），即使没写满buffer，到时间也要落盘
 
+## 📖 参考文档
+```cpp
+getGlobalAsyncLogging()->setBasename("yourname"); // 设置日志文件名前缀 (默认app.log)
+```
+- 由于`AsyncLogging`是单例，所以直接调用`getGlobalAsyncLogging()`即可，但也因此第一份日志文件名前缀是固定的，后续日志文件名会改为你设置的文件名。
+
+
 ## ⚠️ 注意事项 & 坑点
 1. **宏悬垂else问题**：原版muduo LOG宏存在if+else二义性，本项目宏已规避。
 2. **线程安全**：日志库内部自带锁，**多业务线程直接调用LOG_INFO无需额外加锁**。
 3. **洪峰保护**：当待写buffer数量超过阈值，会丢弃多余日志并输出stderr告警，防止内存持续上涨OOM。
 4. **fd版本特性**：使用原生`write(fd)`系统调用写盘，没有stdio的用户态buffer；可自行增加`fsync`强制刷到物理磁盘（注意fsync性能开销很大）。
 5. **程序退出**：析构时会停止后台线程，把剩余buffer全部写入磁盘，避免丢日志。
-
-## 📌 待实现功能（可选扩展）
+6. **日志格式**：日志格式为：`[时间] [日志级别] [文件名:行号] [函数名] message`，时间戳格式为：`yyyy-MM-dd hh:mm:ss.SSS`。
 - [x] 日志写满自动滚动
 - [ ] 日志路径自定义
 - [ ] 日志文件名自定义

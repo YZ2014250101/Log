@@ -14,11 +14,12 @@
 namespace me {
 class AsyncLogging {
 public:
-    AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval = 3);
+    AsyncLogging(off_t rollSize, int flushInterval = 3);
     ~AsyncLogging();
     void start();
     void stop();
     void append(const char* logline, int len);
+    void setBasename(const std::string& basename);
 
 private:
     void threadFunc();
@@ -29,7 +30,6 @@ private:
     LogFile file_;
     int flushInterval_;
     std::atomic<bool> running_ { false };
-
     BufferVector buffers_;
     BufferPtr currentBuffer_;
     BufferPtr nextBuffer_;
@@ -39,7 +39,7 @@ private:
 };
 
 static AsyncLogging* getGlobalAsyncLogging() {
-    static AsyncLogging g_asyncLogging("app.log", 100 * 1024 * 1024, 3);
+    static AsyncLogging g_asyncLogging(100 * 1024 * 1024, 3);
     static bool init = false;
     if (!init) {
         g_asyncLogging.start();
