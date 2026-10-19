@@ -3,7 +3,6 @@
 #include "LogLevel.h"
 #include "Timestamp.h"
 #include "noncopyable.h"
-#include <iostream>
 #include <string.h>
 using namespace std;
 namespace me {
@@ -21,7 +20,6 @@ public:
     ~LogStream() {
         // 向流中添加一个换行符，确保每条日志记录独占一行
         *this << "\n";
-        cout << "LogStream::~LogStream()" << endl;
         if (!g_output) {
             g_output = asyncOutputCallback;
         }

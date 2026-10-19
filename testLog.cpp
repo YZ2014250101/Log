@@ -1,61 +1,45 @@
 #include "LogStream.h"
+#include <atomic>
+#include <chrono>
 #include <iostream>
+#include <thread>
 using namespace me;
+// 总日志条数
+constexpr int kTotalLogs = 1000000;
+// 并发线程数
+constexpr int kThreadNum = 8;
+
+std::atomic<int> g_count { 0 };
+
+void log_worker() {
+    while (true) {
+        int idx = ++g_count;
+        if (idx > kTotalLogs)
+            break;
+        // 模拟业务日志，固定长度消息
+        LOG_INFO << "perf test log message, idx=" << idx << ", hello async logging";
+    }
+}
 
 int main() {
-    auto log = me::getGlobalAsyncLogging();
+    auto start = std::chrono::high_resolution_clock::now();
 
-    // ========== 测试所有 LogStream 重载类型 ==========
-    LOG_INFO << "===== 测试各类整数 =====";
-    short s = -123;
-    unsigned short us = 65000;
-    int i = -123456;
-    unsigned int ui = 4000000000U;
-    long l = -123456789L;
-    unsigned long ul = 1234567890123UL;
-    long long ll = -9223372036854775807LL;
-    unsigned long long ull = 18446744073709551615ULL;
-    LOG_INFO << "short=" << s;
-    LOG_INFO << "unsigned short=" << us;
-    LOG_INFO << "int=" << i;
-    LOG_INFO << "unsigned int=" << ui;
-    LOG_INFO << "long=" << l;
-    LOG_INFO << "unsigned long=" << ul;
-    LOG_INFO << "long long=" << ll;
-    LOG_INFO << "unsigned long long=" << ull;
-
-    LOG_INFO << "===== 浮点数 float / double =====";
-    float f = 3.1415926f;
-    double d1 = -0.000000123456;
-    double d2 = 123456.789;
-    double d3 = 1e20;
-    LOG_INFO << "float=" << f;
-    LOG_INFO << "double small=" << d1;
-    LOG_INFO << "double normal=" << d2;
-    LOG_INFO << "double big exp=" << d3;
-
-    LOG_INFO << "===== 指针、char、bool =====";
-    const char* str = "test_ptr";
-    const void* ptr = &str;
-    char ch = 'X';
-    bool bTrue = true;
-    bool bFalse = false;
-    LOG_INFO << "const char*=" << str;
-    LOG_INFO << "pointer addr=" << ptr;
-    LOG_INFO << "char=" << ch;
-    LOG_INFO << "bool true=" << bTrue;
-    LOG_INFO << "bool false=" << bFalse;
-
-    LOG_INFO << "===== 混合链式输出（重点测试链式<<） =====";
-    LOG_INFO << "mix output, int=" << 233 << ", double=" << 2.718 << ", str=" << "muduo clone";
-
-    // 大量日志压测，触发buffer交换逻辑
-    LOG_INFO << "===== 压力测试 200条日志 =====";
-    for (int idx = 0; idx < 200; ++idx) {
-        LOG_FATAL << "pressure test idx=" << idx << ", val=" << idx * 3.14;
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::vector<std::thread> workers;
+    for (int i = 0; i < kThreadNum; ++i) {
+        workers.emplace_back(log_worker);
+    }
+    for (auto& t : workers) {
+        t.join();
     }
 
-    std::cout << "all log write finish" << std::endl;
+    auto end = std::chrono::high_resolution_clock::now();
+    double cost_s = std::chrono::duration<double>(end - start).count();
+    double qps = kTotalLogs / cost_s;
+
+    std::cout << "Total logs: " << kTotalLogs << "\n";
+    std::cout << "Time cost: " << cost_s << " s\n";
+    std::cout << "QPS: " << qps << " logs/s\n";
+    std::cout << "Avg per log cost: " << cost_s / kTotalLogs * 1e6 << " us\n";
+
     return 0;
 }
