@@ -1,3 +1,0 @@
-/home/yjc/linux_code/Log/build/CMakeFiles/testLog.dir
-/home/yjc/linux_code/Log/build/CMakeFiles/edit_cache.dir
-/home/yjc/linux_code/Log/build/CMakeFiles/rebuild_cache.dir
