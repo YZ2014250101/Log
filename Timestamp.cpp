@@ -31,10 +31,10 @@ std::string Timestamp::toFormattedString(bool showMicroseconds) const {
     gmtime_r(&sec, &tm_utc); // gmtime_r：转UTC时间，线程安全
 
     if (showMicroseconds) {
-        snprintf(buf, sizeof buf, "%04d-%02d-%02d %02d:%02d:%02d.%06lld", tm_utc.tm_year + 1900, tm_utc.tm_mon + 1,
+        snprintf(buf, sizeof buf, "%04d-%02d-%02d_%02d:%02d:%02d.%06lld", tm_utc.tm_year + 1900, tm_utc.tm_mon + 1,
             tm_utc.tm_mday, tm_utc.tm_hour, tm_utc.tm_min, tm_utc.tm_sec, static_cast<long long>(usec));
     } else {
-        snprintf(buf, sizeof buf, "%04d-%02d-%02d %02d:%02d:%02d", tm_utc.tm_year + 1900, tm_utc.tm_mon + 1,
+        snprintf(buf, sizeof buf, "%04d-%02d-%02d_%02d:%02d:%02d", tm_utc.tm_year + 1900, tm_utc.tm_mon + 1,
             tm_utc.tm_mday, tm_utc.tm_hour, tm_utc.tm_min, tm_utc.tm_sec);
     }
     return std::string(buf);

@@ -1,4 +1,5 @@
 #include "AsyncLogging.h"
+#include "LogFile.h"
 #include <cstdio>
 #include <memory>
 
@@ -6,8 +7,7 @@ using namespace std;
 using namespace me;
 namespace me {
 AsyncLogging::AsyncLogging(const std::string& basename, off_t rollSize, int flushInterval)
-    : basename_(basename)
-    , rollSize_(rollSize)
+    : file_(basename, 100 * 1024 * 1024, true, 30, 1024)
     , flushInterval_(flushInterval) {
     currentBuffer_ = std::make_unique<Buffer>();
     nextBuffer_ = std::make_unique<Buffer>();
@@ -16,11 +16,6 @@ AsyncLogging::AsyncLogging(const std::string& basename, off_t rollSize, int flus
 AsyncLogging::~AsyncLogging() {
     if (running_) {
         stop();
-    }
-    if (fd_ >= 0) {
-
-        close(fd_);
-        fd_ = -1;
     }
 }
 void AsyncLogging::append(const char* logline, int len) {
@@ -54,41 +49,27 @@ void AsyncLogging::stop() {
     }
 }
 
-ssize_t AsyncLogging::writeFull(int fd, const char* logline, size_t len) {
-    size_t written = 0;
-    while (written < len) {
-        ssize_t n = write(fd, logline + written, len - written);
-        if (n < 0) {
-            if (errno != EINTR) {
-                return n;
-            }
-            continue;
-        }
-        written += n;
-    }
-    return written;
-}
+void AsyncLogging::writeFull(LogFile& file, const char* logline, size_t len) { file.append(logline, len); }
 
 /**
  * 异步日志线程的主函数
  * 负责将日志数据写入文件
  */
+/**
+ * 异步日志记录的线程函数，负责将日志数据写入文件
+ * 该函数实现了一个双缓冲机制，确保日志写入的高效性
+ */
 void AsyncLogging::threadFunc() {
-    // 创建两个新的缓冲区
+    // 创建两个新的缓冲区，用于实现双缓冲机制
     BufferPtr newBuffer1 = std::make_unique<Buffer>();
     BufferPtr newBuffer2 = std::make_unique<Buffer>();
-    // 创建待写入缓冲区向量，并预留空间
+    // 创建待写入缓冲区向量，并预留空间以避免频繁内存分配
     BufferVector buffersToWrite;
     buffersToWrite.reserve(16);
-    // 以写入、创建、追加模式打开日志文件，设置权限为0644
-    fd_ = open(basename_.c_str(), O_WRONLY | O_CREAT | O_APPEND, 0644);
-    // 如果文件打开失败，直接返回
-    if (fd_ < 0)
-        return;
-    // 当线程正在运行时
+    // 当线程正在运行时，持续执行日志写入操作
     while (running_) {
         {
-            // 使用互斥锁保护共享资源
+            // 使用互斥锁保护共享资源，防止多线程竞争
             std::unique_lock<std::mutex> lock(mutex_);
             // 如果当前缓冲区为空，等待条件变量触发或超时
             if (buffers_.empty()) {
@@ -107,7 +88,7 @@ void AsyncLogging::threadFunc() {
         }
         // 遍历所有待写入的缓冲区，将数据写入文件
         for (const auto& buffer : buffersToWrite) {
-            writeFull(fd_, buffer->data(), buffer->length());
+            writeFull(file_, buffer->data(), buffer->length());
         }
         // 如果待写入缓冲区数量超过2个，只保留最新的2个
         if (buffersToWrite.size() > 2) {
@@ -126,9 +107,6 @@ void AsyncLogging::threadFunc() {
         }
         // 清空待写入缓冲区
         buffersToWrite.clear();
-        if (::fdatasync(fd_) < 0) {
-            perror("fdatasync failed");
-        }
     }
     {
         std::unique_lock<std::mutex> lock(mutex_);
@@ -136,11 +114,9 @@ void AsyncLogging::threadFunc() {
         buffersToWrite.swap(buffers_);
     }
     for (const auto& buffer : buffersToWrite) {
-        writeFull(fd_, buffer->data(), buffer->length());
+        writeFull(file_, buffer->data(), buffer->length());
     }
     buffersToWrite.clear();
-    if (::fdatasync(fd_) < 0) {
-        perror("fdatasync failed");
-    }
+    file_.flush();
 }
 }

@@ -9,6 +9,8 @@ set(SRC_LIST
     AsyncLogging.cpp
     LogStream.cpp
     Timestamp.cpp
+    LogFile.cpp
+    FileUtil.cpp
     testLog.cpp
 )
 

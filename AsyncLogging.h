@@ -1,5 +1,6 @@
 #pragma once
 #include "Buffer.h"
+#include "LogFile.h"
 #include <atomic>
 #include <condition_variable>
 #include <cstdio>
@@ -21,13 +22,11 @@ public:
 
 private:
     void threadFunc();
-    ssize_t writeFull(int fd, const char* logline, size_t len);
+    void writeFull(LogFile& file, const char* logline, size_t len);
     typedef me::detail::FormatBuffer<me::detail::kLargeBufferSize> Buffer;
     typedef std::vector<std::unique_ptr<Buffer>> BufferVector;
     typedef BufferVector::value_type BufferPtr;
-    int fd_;
-    std::string basename_;
-    off_t rollSize_;
+    LogFile file_;
     int flushInterval_;
     std::atomic<bool> running_ { false };
 
