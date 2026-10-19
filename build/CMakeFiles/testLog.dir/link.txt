@@ -1,0 +1,1 @@
+/usr/bin/g++ -g CMakeFiles/testLog.dir/AsyncLogging.cpp.o CMakeFiles/testLog.dir/LogStream.cpp.o CMakeFiles/testLog.dir/Timestamp.cpp.o CMakeFiles/testLog.dir/testLog.cpp.o -o testLog  -lpthread 

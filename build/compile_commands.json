@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/home/yjc/linux_code/Log/build",
+  "command": "/usr/bin/g++  -I/home/yjc/linux_code/Log -g -std=gnu++14 -o CMakeFiles/testLog.dir/AsyncLogging.cpp.o -c /home/yjc/linux_code/Log/AsyncLogging.cpp",
+  "file": "/home/yjc/linux_code/Log/AsyncLogging.cpp",
+  "output": "CMakeFiles/testLog.dir/AsyncLogging.cpp.o"
+},
+{
+  "directory": "/home/yjc/linux_code/Log/build",
+  "command": "/usr/bin/g++  -I/home/yjc/linux_code/Log -g -std=gnu++14 -o CMakeFiles/testLog.dir/LogStream.cpp.o -c /home/yjc/linux_code/Log/LogStream.cpp",
+  "file": "/home/yjc/linux_code/Log/LogStream.cpp",
+  "output": "CMakeFiles/testLog.dir/LogStream.cpp.o"
+},
+{
+  "directory": "/home/yjc/linux_code/Log/build",
+  "command": "/usr/bin/g++  -I/home/yjc/linux_code/Log -g -std=gnu++14 -o CMakeFiles/testLog.dir/Timestamp.cpp.o -c /home/yjc/linux_code/Log/Timestamp.cpp",
+  "file": "/home/yjc/linux_code/Log/Timestamp.cpp",
+  "output": "CMakeFiles/testLog.dir/Timestamp.cpp.o"
+},
+{
+  "directory": "/home/yjc/linux_code/Log/build",
+  "command": "/usr/bin/g++  -I/home/yjc/linux_code/Log -g -std=gnu++14 -o CMakeFiles/testLog.dir/testLog.cpp.o -c /home/yjc/linux_code/Log/testLog.cpp",
+  "file": "/home/yjc/linux_code/Log/testLog.cpp",
+  "output": "CMakeFiles/testLog.dir/testLog.cpp.o"
+}
+]
